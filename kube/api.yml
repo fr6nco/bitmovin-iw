@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bitmovin-web-app-deployment
+  labels:
+    app: bitmovin-web-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bitmovin-web-app
+  template:
+    metadata:
+      labels:
+        app: bitmovin-web-app
+    spec:
+      containers:
+        - name: transmssion
+          image: fr6nco/bitmovin-web-app:dev
+          ports:
+            - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bitmovin-web-app
+  labels:
+    app: bitmovin-web-app
+spec:
+  ports:
+    - port: 3000
+      protocol: TCP
+  selector:
+    app: bitmovin-web-app
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations: {}
+  name: bitmovin-web-app-ingress
+spec:
+  rules:
+    - host: bitmovin.home.int.itprof.sk
+      http:
+        paths:
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: bitmovin-web-app
+                port:
+                  number: 3000
+    - host: bitmovin.home.ext.itprof.sk
+      http:
+        paths:
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: bitmovin-web-app
+                port:
+                  number: 3000
